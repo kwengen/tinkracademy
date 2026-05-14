@@ -35,6 +35,7 @@ export interface Kurs {
   ou_godkjent:     boolean
   published:       boolean
   sortering:       number
+  dynamics_id:     string | null
   datoer:          KursDato[]
 }
 

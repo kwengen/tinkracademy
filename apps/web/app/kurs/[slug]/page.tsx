@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { fetchKursBySlug } from '@/lib/kurs-cms'
+import PaameldingKnapp from './PaameldingKnapp'
 
 export default async function KursDetalj({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
@@ -221,12 +222,11 @@ export default async function KursDetalj({ params }: { params: Promise<{ slug: s
                 ))}
               </div>
 
-              <Link href="#" className="btn" style={{ width: '100%', justifyContent: 'center', marginTop: '24px' }}>
-                Meld deg på <span className="arrow">→</span>
-              </Link>
-              <Link href="#" style={{ display: 'block', textAlign: 'center', marginTop: '12px', fontSize: '13px', color: 'var(--ink-500)' }}>
-                Be om refusjon via OU-midler →
-              </Link>
+              <PaameldingKnapp
+                kursId={course.id}
+                dynamicsEventId={course.dynamics_id ?? ''}
+                kursTittel={course.tittel}
+              />
             </div>
           </aside>
         </div>
