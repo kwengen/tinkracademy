@@ -12,7 +12,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     {
       heading: 'Innhold',
       items: [
-        { href: '/dashboard/admin/artikler', label: 'Artikler' },
         { href: '/dashboard/admin/kurs', label: 'Kurs' },
       ],
     },

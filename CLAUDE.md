@@ -1,22 +1,21 @@
-# WengenCMS – utviklerdokumentasjon
+# Tinkr Academy – utviklerdokumentasjon
 
 > Denne filen leses automatisk av Claude Code i alle chatter.
-> Oppdater den etter hver rammeverk-sesjon.
+> Oppdater den etter hver sesjon.
 
 ---
 
-## Hva er WengenCMS?
+## Hva er Tinkr Academy?
 
-WengenCMS er et **klart-til-bruk-rammeverk** for raskt å bygge innholdsbaserte nettsider med:
+Tinkr Academy er en kursplattform for Tinkr AS, bygget på WengenCMS-rammeverket:
 
 - Brukerhåndtering (registrering, innlogging, profiler)
 - Fire roller: `bruker`, `kommuneadmin`, `admin`, `superadmin`
 - Tier-system: `gratis`, `basis`, `premium`
-- Inline redigering for admin direkte på siden
+- Innholdstype: **Kurs** — synkronisert fra Microsoft Dynamics 365 Marketing via Power Automate
 - Admin-dashboard med sidebar-layout
-- Én eksempel-innholdstype: **Artikler** (kopier dette mønsteret for nye typer)
-
-Ny nettside: sett inn domeneinnhold, erstatt lorem ipsum, legg til innholdstyper.
+- Deployed på: https://tinkracademy.vercel.app
+- Supabase-prosjekt: `yrojqfzyprzqsgzywkru`
 
 ---
 
@@ -29,21 +28,24 @@ Ny nettside: sett inn domeneinnhold, erstatt lorem ipsum, legg til innholdstyper
 | Styling | CSS-variabler + klasser i `globals.css` (ingen Tailwind) |
 | Monorepo | pnpm workspaces – app i `apps/web/` |
 | Migrering | PowerShell-skript mot Supabase Management API |
+| CRM-integrasjon | Microsoft Dynamics 365 Marketing → Power Automate → Supabase |
 
 ---
 
 ## Katalogstruktur
 
 ```
-WengenCMS/
+tinkracademy/
 ├── apps/web/
 │   ├── app/
-│   │   ├── page.tsx               ← Forside (lorem ipsum – erstatt)
+│   │   ├── page.tsx               ← Forside
 │   │   ├── layout.tsx             ← Root layout, AuthProvider, Nav, Footer
 │   │   ├── globals.css            ← Hele designsystemet (ikke endre uten rammeverk-chat)
-│   │   ├── artikler/
-│   │   │   ├── page.tsx           ← Offentlig artikkelliste
-│   │   │   └── [slug]/page.tsx    ← Artikkeldetal jsside med seksjoner
+│   │   ├── kurs/
+│   │   │   ├── page.tsx           ← Offentlig kursliste
+│   │   │   └── [slug]/page.tsx    ← Kursdetaljside
+│   │   ├── api/
+│   │   │   └── dynamics-sync/route.ts  ← Webhook fra Power Automate
 │   │   ├── logg-inn/page.tsx
 │   │   ├── registrer/page.tsx
 │   │   └── dashboard/
@@ -53,7 +55,7 @@ WengenCMS/
 │   │       ├── admin/
 │   │       │   ├── layout.tsx     ← AdminSidebar-wrapper
 │   │       │   ├── page.tsx       ← Oversikt med statistikk
-│   │       │   └── artikler/page.tsx  ← CRUD for artikler
+│   │       │   └── kurs/page.tsx  ← CRUD for kurs
 │   │       └── superadmin/
 │   │           ├── layout.tsx
 │   │           ├── page.tsx
@@ -69,13 +71,13 @@ WengenCMS/
 │   └── lib/
 │       ├── supabase.ts            ← Supabase-klient
 │       ├── auth.tsx               ← AuthProvider + useAuth hook
-│       └── artikler-cms.ts        ← Typer + fetch-funksjoner for artikler
+│       └── kurs-cms.ts            ← Typer + fetch-funksjoner for kurs
 ├── supabase/
 │   ├── Invoke-SupabaseSQL.ps1    ← Kjører SQL mot Supabase Management API
 │   ├── kjor-alt.ps1              ← Kjører alle migrasjonsskript i riktig rekkefølge
 │   ├── schema.sql                ← Kjerne: profiles, organizations, roller, trigger
-│   ├── artikler.sql              ← Artikler + artikkel_seksjoner med RLS
-│   └── seed-artikler.sql         ← Lorem ipsum-seed (hopp over i prod)
+│   ├── kurs.sql                  ← kurs + kurs_datoer tabeller med RLS
+│   └── kurs-dynamics.sql         ← dynamics_id-kolonne + utvidet kategori-constraint
 └── CLAUDE.md                     ← Denne filen
 ```
 
@@ -113,12 +115,14 @@ pnpm dev
 **Trigger `on_auth_user_created`:** Oppretter profil automatisk ved registrering.
 Tier arves fra `organizations.tier` basert på e-postdomene.
 
-### Eksempel-innholdstype (`artikler.sql`)
+### Kurs-tabeller (`kurs.sql` + `kurs-dynamics.sql`)
 
 | Tabell | Innhold |
 |---|---|
-| `artikler` | tittel, slug, ingress, tier, published, sortering |
-| `artikkel_seksjoner` | type: tekst/liste/lenker, tittel, innhold, meta JSONB, sortering |
+| `kurs` | tittel, slug, ingress, kategori, sted, datoer_tekst, max_deltakere, published, dynamics_id |
+| `kurs_datoer` | kurs_id, maaned, dag, label, tid, sortering |
+
+`dynamics_id` (TEXT UNIQUE) brukes til upsert fra Dynamics 365.
 
 ---
 
@@ -285,10 +289,44 @@ $env:SUPABASE_TOKEN = "sbp_xxxxx"
 
 ---
 
+## Dynamics 365-integrasjon
+
+### Arkitektur
+Dynamics 365 Marketing (tinkr-sales.crm4.dynamics.com) → Power Automate → POST `/api/dynamics-sync` → Supabase upsert på `dynamics_id`
+
+### Feltmapping
+
+| Dynamics-felt | → Supabase-kolonne |
+|---|---|
+| `msevtmgt_eventid` | `dynamics_id` |
+| `msevtmgt_name` | `tittel` |
+| `crc65_omkurset` | `ingress` |
+| `new_kursmodulinnovasjonssystemet` (FormattedValue) | `kategori` |
+| `msevtmgt_eventstartdate` | `datoer_tekst` + `kurs_datoer` |
+| `msevtmgt_eventenddate` | `kurs_datoer.tid` (slutt) |
+| `msevtmgt_buildingname` | `sted` |
+| `msevtmgt_maximumeventcapacity` | `max_deltakere` |
+| `statecode` (0=aktiv) | `published` |
+
+### Kategori-verdier (picklist)
+`Introduksjon til innovasjonsledelse`, `Kultur`, `Ledelse` (→ Lederskap), `Struktur`, `Prosess`, `Ressurser`, `Strategi`
+
+### Sikkerhet
+Webhook valideres med `x-webhook-secret`-header mot `DYNAMICS_WEBHOOK_SECRET` env-variabel i Vercel.
+
+### Power Automate-flow
+- Navn: **Kursoversikt**
+- Utløser: Dataverse — When a row is added, modified or deleted
+- Tabell: Events, Change type: Added or Modified, Scope: Organization
+- Tilkobling: **Tinkr Dynamics** (tinkr-sales.crm4.dynamics.com)
+
+---
+
 ## Konvensjoner for feature-chatter
 
 **Kan endres:**
-- Filer under `app/<innholdstype>/`
+- Filer under `app/kurs/`
+- `app/api/dynamics-sync/route.ts`
 - `app/page.tsx` (forside-innhold)
 - `components/Nav.tsx` (kun SITE_NAME og NAV_LINKS-konstantene)
 - `components/Footer.tsx` (kun SITE_NAME og SITE_TAGLINE-konstantene)

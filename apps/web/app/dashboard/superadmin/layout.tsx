@@ -19,11 +19,7 @@ export default function SuperadminLayout({ children }: { children: React.ReactNo
     {
       heading: 'Innhold',
       items: [
-        { href: '/dashboard/admin/tiltak',        label: 'Tiltak' },
-        { href: '/dashboard/admin/temaer',        label: 'Temaer' },
-        { href: '/dashboard/admin/verktoy',       label: 'Verktøy' },
-        { href: '/dashboard/admin/soknadsguider', label: 'Søknadshjelp' },
-        { href: '/dashboard/admin/godkjenning',   label: 'Til godkjenning' },
+        { href: '/dashboard/admin/kurs', label: 'Kurs' },
       ],
     },
   ]
