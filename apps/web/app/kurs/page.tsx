@@ -94,7 +94,7 @@ export default function KursPage() {
           ) : kurs.length === 0 ? (
             <p style={{ padding: 'clamp(40px, 6vw, 80px) 0', color: 'var(--ink-500)', fontStyle: 'italic' }}>Ingen kurs publisert ennå.</p>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '32px', padding: 'clamp(40px, 6vw, 80px) 0' }}>
+            <div className="course-grid-inner" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '32px', padding: 'clamp(40px, 6vw, 80px) 0' }}>
               {kurs.map(k => {
                 const href = k.slug ? `/kurs/${k.slug}` : '#'
                 const svg = SVG_MAP[k.num] ?? null
