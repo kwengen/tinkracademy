@@ -14,12 +14,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  const navn              = (body['navn'] as string)?.trim()
-  const epost             = (body['epost'] as string)?.trim().toLowerCase()
-  const kursId            = body['kurs_id'] as string
-  const dynamicsEventId   = body['dynamics_event_id'] as string
+  const fornavn         = (body['fornavn'] as string)?.trim()
+  const etternavn       = (body['etternavn'] as string)?.trim()
+  const epost           = (body['epost'] as string)?.trim().toLowerCase()
+  const kursId          = body['kurs_id'] as string
+  const dynamicsEventId = body['dynamics_event_id'] as string
 
-  if (!navn || !epost || !kursId || !dynamicsEventId) {
+  if (!fornavn || !etternavn || !epost || !kursId || !dynamicsEventId) {
     return NextResponse.json({ error: 'Mangler påkrevde felter' }, { status: 400 })
   }
 
@@ -27,11 +28,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Ugyldig e-postadresse' }, { status: 400 })
   }
 
-  // Lagre i Supabase
   const { error } = await supabase.from('kurs_paameldinger').insert({
     kurs_id:           kursId,
     dynamics_event_id: dynamicsEventId,
-    navn,
+    fornavn,
+    etternavn,
     epost,
   })
 
@@ -40,14 +41,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  // Videresend til Power Automate hvis env-variabel er satt
   const paUrl = process.env.POWER_AUTOMATE_PAAMELDING_URL
   if (paUrl) {
     try {
       await fetch(paUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ navn, epost, dynamics_event_id: dynamicsEventId }),
+        body: JSON.stringify({ fornavn, etternavn, epost, dynamics_event_id: dynamicsEventId }),
       })
     } catch (e) {
       console.error('Power Automate-feil (ikke kritisk):', e)

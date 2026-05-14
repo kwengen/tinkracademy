@@ -9,11 +9,12 @@ interface Props {
 }
 
 export default function PaameldingKnapp({ kursId, dynamicsEventId, kursTittel }: Props) {
-  const [open, setOpen]       = useState(false)
-  const [navn, setNavn]       = useState('')
-  const [epost, setEpost]     = useState('')
-  const [status, setStatus]   = useState<'idle' | 'loading' | 'ok' | 'feil'>('idle')
-  const [feil, setFeil]       = useState('')
+  const [open, setOpen]           = useState(false)
+  const [fornavn, setFornavn]     = useState('')
+  const [etternavn, setEtternavn] = useState('')
+  const [epost, setEpost]         = useState('')
+  const [status, setStatus]       = useState<'idle' | 'loading' | 'ok' | 'feil'>('idle')
+  const [feil, setFeil]           = useState('')
 
   async function send(e: React.FormEvent) {
     e.preventDefault()
@@ -23,7 +24,7 @@ export default function PaameldingKnapp({ kursId, dynamicsEventId, kursTittel }:
     const res = await fetch('/api/kurs-paamelding', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ navn, epost, kurs_id: kursId, dynamics_event_id: dynamicsEventId }),
+      body: JSON.stringify({ fornavn, etternavn, epost, kurs_id: kursId, dynamics_event_id: dynamicsEventId }),
     })
 
     if (res.ok) {
@@ -38,9 +39,16 @@ export default function PaameldingKnapp({ kursId, dynamicsEventId, kursTittel }:
   function lukk() {
     setOpen(false)
     setStatus('idle')
-    setNavn('')
+    setFornavn('')
+    setEtternavn('')
     setEpost('')
     setFeil('')
+  }
+
+  const inputStyle = {
+    width: '100%', padding: '.75rem 1rem',
+    border: '2px solid var(--clr-border)', borderRadius: '8px',
+    fontSize: '1rem', fontFamily: 'inherit', boxSizing: 'border-box' as const,
   }
 
   return (
@@ -96,14 +104,25 @@ export default function PaameldingKnapp({ kursId, dynamicsEventId, kursTittel }:
                 )}
 
                 <form onSubmit={send} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '.875rem', fontWeight: 600, marginBottom: '.4rem' }}>Fullt navn</label>
-                    <input
-                      type="text" required
-                      value={navn} onChange={e => setNavn(e.target.value)}
-                      placeholder="Ola Nordmann"
-                      style={{ width: '100%', padding: '.75rem 1rem', border: '2px solid var(--clr-border)', borderRadius: '8px', fontSize: '1rem', fontFamily: 'inherit', boxSizing: 'border-box' }}
-                    />
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '.875rem', fontWeight: 600, marginBottom: '.4rem' }}>Fornavn</label>
+                      <input
+                        type="text" required
+                        value={fornavn} onChange={e => setFornavn(e.target.value)}
+                        placeholder="Ola"
+                        style={inputStyle}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '.875rem', fontWeight: 600, marginBottom: '.4rem' }}>Etternavn</label>
+                      <input
+                        type="text" required
+                        value={etternavn} onChange={e => setEtternavn(e.target.value)}
+                        placeholder="Nordmann"
+                        style={inputStyle}
+                      />
+                    </div>
                   </div>
                   <div>
                     <label style={{ display: 'block', fontSize: '.875rem', fontWeight: 600, marginBottom: '.4rem' }}>E-postadresse</label>
@@ -111,7 +130,7 @@ export default function PaameldingKnapp({ kursId, dynamicsEventId, kursTittel }:
                       type="email" required
                       value={epost} onChange={e => setEpost(e.target.value)}
                       placeholder="navn@kommune.no"
-                      style={{ width: '100%', padding: '.75rem 1rem', border: '2px solid var(--clr-border)', borderRadius: '8px', fontSize: '1rem', fontFamily: 'inherit', boxSizing: 'border-box' }}
+                      style={inputStyle}
                     />
                   </div>
                   <button
