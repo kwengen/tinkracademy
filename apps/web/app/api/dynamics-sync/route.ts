@@ -51,16 +51,13 @@ export async function POST(req: NextRequest) {
   // ── Hent felter fra Dynamics-payload ────────────────────────────────────────
   const dynamicsId   = body['msevtmgt_eventid'] as string
   const tittel       = body['msevtmgt_name'] as string
-  const beskrivelse  = body['msevtmgt_description'] as string | null
+  const beskrivelse  = body['crc65_omkurset'] as string | null
   const startdato    = body['msevtmgt_eventstartdate'] as string | null
   const sluttdato    = body['msevtmgt_eventenddate'] as string | null
-  const kapasitet    = body['msevtmgt_maxcapacity'] as number | null
-  const by           = body['msevtmgt_building_city'] as string | null
+  const kapasitet    = body['msevtmgt_maximumeventcapacity'] as number | null
+  const by           = body['msevtmgt_buildingname'] as string | null
   const statecode    = body['statecode'] as number  // 0 = aktiv, 1 = inaktiv
-
-  // TODO: Bytt ut 'new_kursmodul_innovasjonssystemet' med det faktiske feltnavnet
-  // fra Dynamics (finn det i Settings → Customizations → Events → Fields)
-  const dynamicsKategori = body['new_kursmodul_innovasjonssystemet'] as string | null
+  const dynamicsKategori = body['new_kursmodulinnovasjonssystemet'] as string | null
 
   if (!dynamicsId || !tittel) {
     return NextResponse.json({ error: 'Mangler påkrevde felter: msevtmgt_eventid og msevtmgt_name' }, { status: 400 })
@@ -72,7 +69,7 @@ export async function POST(req: NextRequest) {
     : 'Lederskap'
 
   const datoerTekst = startdato ? formatDato(startdato) : null
-  const published   = statecode === 0
+  const published   = Number(statecode) === 0
 
   const kursData = {
     dynamics_id:  dynamicsId,
