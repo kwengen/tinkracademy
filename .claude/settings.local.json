@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p \"C:\\\\Users\\\\wenge\\\\ProIPS\\\\tinkracademy\\\\.claude\\\\worktrees\\\\zen-heisenberg-ccaa0c\\\\apps\\\\web\\\\app\\\\kurs\\\\[slug]\")",
+      "Bash(pnpm --filter web exec tsc --noEmit)",
+      "Bash(pnpm exec *)",
+      "Bash(pnpm install *)",
+      "Bash(node_modules/.bin/next build *)"
+    ]
+  }
+}

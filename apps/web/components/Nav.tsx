@@ -2,23 +2,24 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useAuth, ROLE_DASHBOARD } from '../lib/auth'
 
-// ── Tilpass nettstedsnavnet her ───────────────────────────────────────────────
-const SITE_NAME = 'WengenCMS'
-
-// ── Legg til menypunkter her ──────────────────────────────────────────────────
-// { href: '/eksempelside', label: 'Eksempelside' }
-const NAV_LINKS: { href: string; label: string }[] = [
-  { href: '/artikler', label: 'Artikler' },
+const NAV_LINKS = [
+  { href: '/kurs',      label: 'Kurs' },
+  { href: '/nettverk',  label: 'Innovasjonsnettverket' },
+  { href: '/om',        label: 'Om' },
 ]
 
 export function Nav() {
-  const [open, setOpen] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const { user, profile, role, loading, signOut } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
+
+  const isActive = (href: string) =>
+    href === '/' ? pathname === '/' : pathname?.startsWith(href)
 
   async function handleSignOut() {
     await signOut()
@@ -27,93 +28,138 @@ export function Nav() {
   }
 
   return (
-    <header>
-      <nav className="nav" aria-label="Hovednavigasjon">
-        <div className="container">
-          <div className="nav__inner">
-            <Link href="/" className="nav__logo">{SITE_NAME}</Link>
-            <ul className="nav__links" role="list">
-              {NAV_LINKS.map(l => (
-                <li key={l.href}><Link href={l.href} className="nav__link">{l.label}</Link></li>
-              ))}
-            </ul>
-            <div className="nav__actions">
-              {!loading && (
-                user ? (
-                  <div style={{ position: 'relative' }}>
-                    <button
-                      onClick={() => setUserMenuOpen(!userMenuOpen)}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: '.5rem',
-                        background: 'var(--clr-primary-light)', border: '1px solid var(--clr-border)',
-                        borderRadius: '999px', padding: '.375rem .875rem .375rem .375rem',
-                        cursor: 'pointer', fontSize: '.875rem', fontWeight: 600,
-                      }}
-                    >
-                      <span style={{
-                        width: '28px', height: '28px', borderRadius: '50%',
-                        background: 'var(--clr-primary)', color: 'white',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: '.75rem', fontWeight: 700,
-                      }}>
-                        {(profile?.name ?? user.email ?? '?')[0].toUpperCase()}
-                      </span>
-                      <span>{profile?.name ?? user.email?.split('@')[0]}</span>
-                    </button>
-                    {userMenuOpen && (
-                      <div style={{
-                        position: 'absolute', right: 0, top: 'calc(100% + .5rem)',
-                        background: 'white', border: '1px solid var(--clr-border)',
-                        borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-lg)',
-                        minWidth: '180px', zIndex: 100,
-                      }}>
-                        {role && (
-                          <Link
-                            href={ROLE_DASHBOARD[role]}
-                            onClick={() => setUserMenuOpen(false)}
-                            style={{ display: 'block', padding: '.75rem 1rem', fontSize: '.875rem', fontWeight: 600, borderBottom: '1px solid var(--clr-border)' }}
-                          >
-                            Dashboard
-                          </Link>
-                        )}
-                        <button
-                          onClick={handleSignOut}
-                          style={{ display: 'block', width: '100%', textAlign: 'left', padding: '.75rem 1rem', fontSize: '.875rem', color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer' }}
-                        >
-                          Logg ut
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <Link href="/logg-inn" className="nav__login">Logg inn</Link>
-                )
-              )}
-              <button
-                className="nav__hamburger"
-                aria-label={open ? 'Lukk meny' : 'Åpne meny'}
-                aria-expanded={open}
-                aria-controls="mobile-menu"
-                onClick={() => setOpen(!open)}
-              >
-                <span /><span /><span />
-              </button>
-            </div>
-          </div>
-        </div>
-        <div id="mobile-menu" className={`nav__mobile ${open ? 'open' : ''}`} aria-hidden={!open}>
+    <header className="site-header">
+      <div className="container">
+        <Link href="/" className="brand" aria-label="Tinkr Academy forside">
+          <img className="logo" src="/img/tinkr-academy-logo.png" alt="Tinkr Academy" />
+        </Link>
+
+        <nav className="site-nav" aria-label="Hovednavigasjon">
           {NAV_LINKS.map(l => (
-            <Link key={l.href} href={l.href} className="nav__mobile-link" onClick={() => setOpen(false)}>{l.label}</Link>
+            <Link
+              key={l.href}
+              href={l.href}
+              aria-current={isActive(l.href) ? 'page' : undefined}
+            >
+              {l.label}
+            </Link>
+          ))}
+        </nav>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {!loading && (
+            user ? (
+              <div style={{ position: 'relative' }}>
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '8px',
+                    background: 'color-mix(in oklab, var(--ink) 6%, transparent)',
+                    border: '1px solid var(--ink-100)',
+                    borderRadius: '999px', padding: '6px 14px 6px 6px',
+                    cursor: 'pointer', fontSize: '14px', fontWeight: 600,
+                    fontFamily: 'var(--font-body)',
+                  }}
+                >
+                  <span style={{
+                    width: '28px', height: '28px', borderRadius: '50%',
+                    background: 'var(--brand-gradient)', color: 'white',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '12px', fontWeight: 700, flexShrink: 0,
+                  }}>
+                    {(profile?.name ?? user.email ?? '?')[0].toUpperCase()}
+                  </span>
+                  <span style={{ color: 'var(--ink)' }}>{profile?.name ?? user.email?.split('@')[0]}</span>
+                </button>
+                {userMenuOpen && (
+                  <div style={{
+                    position: 'absolute', right: 0, top: 'calc(100% + 8px)',
+                    background: 'var(--paper)',
+                    border: '1px solid var(--ink-100)',
+                    borderRadius: 'var(--radius-lg)',
+                    boxShadow: '0 16px 40px rgba(26,26,34,.14)',
+                    minWidth: '180px', zIndex: 100, overflow: 'hidden',
+                  }}>
+                    {role && (
+                      <Link
+                        href={ROLE_DASHBOARD[role]}
+                        onClick={() => setUserMenuOpen(false)}
+                        style={{ display: 'block', padding: '12px 16px', fontSize: '14px', fontWeight: 600, borderBottom: '1px solid var(--ink-100)', color: 'var(--ink)' }}
+                      >
+                        Dashboard
+                      </Link>
+                    )}
+                    <button
+                      onClick={handleSignOut}
+                      style={{ display: 'block', width: '100%', textAlign: 'left', padding: '12px 16px', fontSize: '14px', color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-body)' }}
+                    >
+                      Logg ut
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                href="/logg-inn"
+                style={{ fontSize: '14px', fontWeight: 500, color: 'var(--ink-700)' }}
+              >
+                Logg inn
+              </Link>
+            )
+          )}
+
+          <Link href="/kurs" className="btn nav-cta">
+            Se alle kurs <span className="arrow">→</span>
+          </Link>
+
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label={mobileOpen ? 'Lukk meny' : 'Åpne meny'}
+            aria-expanded={mobileOpen}
+            className="mobile-menu-btn"
+            style={{ background: 'none', border: 'none', padding: '8px', cursor: 'pointer', display: 'none', flexDirection: 'column', gap: '5px' }}
+          >
+            <span style={{ display: 'block', width: '22px', height: '2px', background: 'var(--ink)', borderRadius: '2px' }} />
+            <span style={{ display: 'block', width: '22px', height: '2px', background: 'var(--ink)', borderRadius: '2px' }} />
+            <span style={{ display: 'block', width: '22px', height: '2px', background: 'var(--ink)', borderRadius: '2px' }} />
+          </button>
+        </div>
+      </div>
+
+      {mobileOpen && (
+        <div style={{ borderTop: '1px solid var(--ink-100)', background: 'var(--off-white)', padding: '12px 0' }}>
+          {NAV_LINKS.map(l => (
+            <Link
+              key={l.href}
+              href={l.href}
+              onClick={() => setMobileOpen(false)}
+              style={{ display: 'block', padding: '12px var(--gutter)', fontSize: '16px', fontWeight: 500, color: 'var(--ink-700)' }}
+            >
+              {l.label}
+            </Link>
           ))}
           {user ? (
-            <button onClick={handleSignOut} className="nav__mobile-link" style={{ background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', width: '100%' }}>
+            <button
+              onClick={handleSignOut}
+              style={{ display: 'block', width: '100%', textAlign: 'left', padding: '12px var(--gutter)', fontSize: '16px', color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-body)' }}
+            >
               Logg ut
             </button>
           ) : (
-            <Link href="/logg-inn" className="nav__mobile-link" onClick={() => setOpen(false)}>Logg inn</Link>
+            <Link href="/logg-inn" onClick={() => setMobileOpen(false)} style={{ display: 'block', padding: '12px var(--gutter)', fontSize: '16px', color: 'var(--ink-700)' }}>
+              Logg inn
+            </Link>
           )}
         </div>
-      </nav>
+      )}
+
+      <style>{`
+        @media (max-width: 880px) {
+          .site-nav { display: none !important; }
+          .nav-cta { display: none !important; }
+          .mobile-menu-btn { display: flex !important; }
+        }
+      `}</style>
     </header>
   )
 }

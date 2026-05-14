@@ -30,12 +30,12 @@ export default function LoggInn() {
     <main style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
       <div style={{ width: '100%', maxWidth: '440px' }}>
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <Link href="/" style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--clr-primary-dark)' }}>
-            Omstillingsportalen
+          <Link href="/">
+            <img src="/img/tinkr-academy-logo.png" alt="Tinkr Academy" style={{ height: '36px' }} />
           </Link>
           <h1 style={{ fontSize: '1.75rem', fontWeight: 800, marginTop: '1.5rem', marginBottom: '.5rem' }}>Logg inn</h1>
           <p style={{ color: 'var(--clr-text-secondary)', fontSize: '.9375rem' }}>
-            Bruk din kommunale e-postadresse for automatisk tilgang.
+            Logg inn med din Tinkr Academy-konto.
           </p>
         </div>
 
@@ -73,15 +73,6 @@ export default function LoggInn() {
               {loading ? 'Logger inn…' : 'Logg inn'}
             </button>
           </form>
-        </div>
-
-        <div style={{ marginTop: '1.5rem', background: 'var(--clr-primary-light)', border: '1px solid #B8D4EE', borderRadius: 'var(--radius-lg)', padding: '1.25rem' }}>
-          <p style={{ fontSize: '.875rem', color: 'var(--clr-primary-dark)', fontWeight: 600, marginBottom: '.375rem' }}>
-            🏛️ Kommunalt domene = automatisk tilgang
-          </p>
-          <p style={{ fontSize: '.8125rem', color: 'var(--clr-text-secondary)', lineHeight: 1.6 }}>
-            Bruker du en kommunal e-post og kommunen har abonnement, får du automatisk riktig tilgangsnivå.
-          </p>
         </div>
 
         <p style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '.875rem', color: 'var(--clr-text-secondary)' }}>

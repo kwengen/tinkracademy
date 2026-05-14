@@ -36,7 +36,8 @@ $Script = Join-Path $PSScriptRoot "Invoke-SupabaseSQL.ps1"
 $Filer = @(
     "schema.sql",        # 1. Kjerne: profiles, organizations, roller, trigger
     "artikler.sql",      # 2. Eksempel-innholdstype: artikler + seksjoner
-    "seed-artikler.sql"  # 3. Lorem ipsum-seed (kan hoppes over i prod)
+    "kurs.sql",          # 3. Tinkr Academy: kurs + kurs_datoer
+    "seed-artikler.sql"  # 4. Lorem ipsum-seed (kan hoppes over i prod)
 )
 
 Write-Host ""

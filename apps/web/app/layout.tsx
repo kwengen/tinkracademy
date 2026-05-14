@@ -8,8 +8,8 @@ import { AdminEditBar } from '../components/AdminEditBar'
 
 // ── Tilpass disse for hvert prosjekt ──────────────────────────────────────────
 export const metadata: Metadata = {
-  title: 'WengenCMS – din nettside',
-  description: 'Beskrivelse av nettsiden.',
+  title: 'Tinkr Academy – Sammen om innovasjon i offentlig sektor',
+  description: 'Praktiske kurs, dypdykk og et levende nettverk for kommunale ledere. Forskningsbasert, KS-godkjent og forankret i kommunal hverdag.',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
