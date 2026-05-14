@@ -9,12 +9,16 @@ interface Props {
 }
 
 export default function PaameldingKnapp({ kursId, dynamicsEventId, kursTittel }: Props) {
-  const [open, setOpen]           = useState(false)
-  const [fornavn, setFornavn]     = useState('')
-  const [etternavn, setEtternavn] = useState('')
-  const [epost, setEpost]         = useState('')
-  const [status, setStatus]       = useState<'idle' | 'loading' | 'ok' | 'feil'>('idle')
-  const [feil, setFeil]           = useState('')
+  const [open, setOpen]                       = useState(false)
+  const [fornavn, setFornavn]                 = useState('')
+  const [etternavn, setEtternavn]             = useState('')
+  const [epost, setEpost]                     = useState('')
+  const [organisasjon, setOrganisasjon]       = useState('')
+  const [stilling, setStilling]               = useState('')
+  const [kommentar, setKommentar]             = useState('')
+  const [betalingsmetode, setBetalingsmetode] = useState<'kort' | 'faktura'>('kort')
+  const [status, setStatus]                   = useState<'idle' | 'loading' | 'ok' | 'feil'>('idle')
+  const [feil, setFeil]                       = useState('')
 
   async function send(e: React.FormEvent) {
     e.preventDefault()
@@ -24,7 +28,11 @@ export default function PaameldingKnapp({ kursId, dynamicsEventId, kursTittel }:
     const res = await fetch('/api/kurs-paamelding', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ fornavn, etternavn, epost, kurs_id: kursId, dynamics_event_id: dynamicsEventId }),
+      body: JSON.stringify({
+        fornavn, etternavn, epost, organisasjon, stilling, kommentar, betalingsmetode,
+        kurs_id: kursId,
+        dynamics_event_id: dynamicsEventId,
+      }),
     })
 
     if (res.ok) {
@@ -42,6 +50,10 @@ export default function PaameldingKnapp({ kursId, dynamicsEventId, kursTittel }:
     setFornavn('')
     setEtternavn('')
     setEpost('')
+    setOrganisasjon('')
+    setStilling('')
+    setKommentar('')
+    setBetalingsmetode('kort')
     setFeil('')
   }
 
@@ -49,6 +61,10 @@ export default function PaameldingKnapp({ kursId, dynamicsEventId, kursTittel }:
     width: '100%', padding: '.75rem 1rem',
     border: '2px solid var(--clr-border)', borderRadius: '8px',
     fontSize: '1rem', fontFamily: 'inherit', boxSizing: 'border-box' as const,
+  }
+
+  const labelStyle = {
+    display: 'block', fontSize: '.875rem', fontWeight: 600, marginBottom: '.4rem',
   }
 
   return (
@@ -69,12 +85,14 @@ export default function PaameldingKnapp({ kursId, dynamicsEventId, kursTittel }:
             background: 'rgba(0,0,0,.45)', backdropFilter: 'blur(4px)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             padding: '1rem',
+            overflowY: 'auto',
           }}
         >
           <div style={{
             background: 'white', borderRadius: '16px',
-            padding: '2rem', width: '100%', maxWidth: '440px',
+            padding: '2rem', width: '100%', maxWidth: '480px',
             boxShadow: '0 24px 64px rgba(0,0,0,.18)',
+            margin: 'auto',
           }}>
             {status === 'ok' ? (
               <div style={{ textAlign: 'center', padding: '1rem 0' }}>
@@ -106,7 +124,7 @@ export default function PaameldingKnapp({ kursId, dynamicsEventId, kursTittel }:
                 <form onSubmit={send} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                     <div>
-                      <label style={{ display: 'block', fontSize: '.875rem', fontWeight: 600, marginBottom: '.4rem' }}>Fornavn</label>
+                      <label style={labelStyle}>Fornavn</label>
                       <input
                         type="text" required
                         value={fornavn} onChange={e => setFornavn(e.target.value)}
@@ -115,7 +133,7 @@ export default function PaameldingKnapp({ kursId, dynamicsEventId, kursTittel }:
                       />
                     </div>
                     <div>
-                      <label style={{ display: 'block', fontSize: '.875rem', fontWeight: 600, marginBottom: '.4rem' }}>Etternavn</label>
+                      <label style={labelStyle}>Etternavn</label>
                       <input
                         type="text" required
                         value={etternavn} onChange={e => setEtternavn(e.target.value)}
@@ -125,7 +143,7 @@ export default function PaameldingKnapp({ kursId, dynamicsEventId, kursTittel }:
                     </div>
                   </div>
                   <div>
-                    <label style={{ display: 'block', fontSize: '.875rem', fontWeight: 600, marginBottom: '.4rem' }}>E-postadresse</label>
+                    <label style={labelStyle}>E-postadresse</label>
                     <input
                       type="email" required
                       value={epost} onChange={e => setEpost(e.target.value)}
@@ -133,13 +151,64 @@ export default function PaameldingKnapp({ kursId, dynamicsEventId, kursTittel }:
                       style={inputStyle}
                     />
                   </div>
+                  <div>
+                    <label style={labelStyle}>Organisasjon</label>
+                    <input
+                      type="text"
+                      value={organisasjon} onChange={e => setOrganisasjon(e.target.value)}
+                      placeholder="Kommune / virksomhet"
+                      style={inputStyle}
+                    />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Stilling</label>
+                    <input
+                      type="text"
+                      value={stilling} onChange={e => setStilling(e.target.value)}
+                      placeholder="Din stilling"
+                      style={inputStyle}
+                    />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Kommentar</label>
+                    <textarea
+                      value={kommentar} onChange={e => setKommentar(e.target.value)}
+                      placeholder="Eventuelle kommentarer eller spørsmål"
+                      rows={3}
+                      style={{ ...inputStyle, resize: 'vertical' }}
+                    />
+                  </div>
+
+                  <div>
+                    <p style={{ fontSize: '.875rem', fontWeight: 700, marginBottom: '.75rem' }}>Betal med</p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem' }}>
+                      {(['kort', 'faktura'] as const).map(metode => (
+                        <label key={metode} style={{ display: 'flex', alignItems: 'center', gap: '.6rem', cursor: 'pointer', fontSize: '.9375rem' }}>
+                          <input
+                            type="radio"
+                            name="betalingsmetode"
+                            value={metode}
+                            checked={betalingsmetode === metode}
+                            onChange={() => setBetalingsmetode(metode)}
+                            style={{ accentColor: 'var(--clr-primary)', width: '1rem', height: '1rem' }}
+                          />
+                          {metode === 'kort' ? 'Kort' : 'Faktura'}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
                   <button
                     type="submit"
                     disabled={status === 'loading'}
                     className="btn"
                     style={{ width: '100%', justifyContent: 'center', marginTop: '.25rem', opacity: status === 'loading' ? .6 : 1 }}
                   >
-                    {status === 'loading' ? 'Sender…' : 'Send påmelding →'}
+                    {status === 'loading'
+                      ? 'Sender…'
+                      : betalingsmetode === 'kort'
+                        ? 'Betal med kort →'
+                        : 'Send faktura →'}
                   </button>
                 </form>
               </>

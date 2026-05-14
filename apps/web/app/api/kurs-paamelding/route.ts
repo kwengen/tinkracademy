@@ -19,6 +19,10 @@ export async function POST(req: NextRequest) {
   const epost           = (body['epost'] as string)?.trim().toLowerCase()
   const kursId          = body['kurs_id'] as string
   const dynamicsEventId = body['dynamics_event_id'] as string
+  const organisasjon    = (body['organisasjon'] as string)?.trim() ?? ''
+  const stilling        = (body['stilling'] as string)?.trim() ?? ''
+  const kommentar       = (body['kommentar'] as string)?.trim() ?? ''
+  const betalingsmetode = (body['betalingsmetode'] as string) === 'faktura' ? 'faktura' : 'kort'
 
   if (!fornavn || !etternavn || !epost || !kursId || !dynamicsEventId) {
     return NextResponse.json({ error: 'Mangler påkrevde felter' }, { status: 400 })
@@ -34,6 +38,10 @@ export async function POST(req: NextRequest) {
     fornavn,
     etternavn,
     epost,
+    organisasjon,
+    stilling,
+    kommentar,
+    betalingsmetode,
   })
 
   if (error) {
@@ -47,7 +55,7 @@ export async function POST(req: NextRequest) {
       await fetch(paUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fornavn, etternavn, epost, dynamics_event_id: dynamicsEventId }),
+        body: JSON.stringify({ fornavn, etternavn, epost, organisasjon, stilling, dynamics_event_id: dynamicsEventId }),
       })
     } catch (e) {
       console.error('Power Automate-feil (ikke kritisk):', e)
